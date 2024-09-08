@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 8px;
+            justify-content: center;
+        }
+        .card {
+            padding: 8px;
+            border: 2px solid black;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 24px;
+        }
+        .selected {
+            background-color: yellow;
+        }
+        .red {
+            color: red;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card-grid" id="cardGrid">
+        <!-- Cards will be dynamically inserted here -->
+    </div>
+
+    <div class="buttons">
+        <button id="copyButton">Copy Selected</button>
+        <button id="clearButton">Clear Selection</button>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
+        const selectedCards = [];
+
+        const cardGrid = document.getElementById('cardGrid');
+
+        // Function to create the grid of cards
+        function createCardButtons() {
+            for (let rank of ranks) {
+                for (let suit of suits) {
+                    const card = document.createElement('div');
+                    card.classList.add('card');
+                    card.textContent = `${rank}${suit}`;
+                    
+                    // Make ♥ and ♦ red
+                    if (suit === '♥' || suit === '♦') {
+                        card.classList.add('red');
+                    }
+
+                    card.addEventListener('click', () => toggleSelection(card));
+                    cardGrid.appendChild(card);
+                }
+            }
+        }
+
+        // Function to toggle card selection
+        function toggleSelection(card) {
+            if (selectedCards.length >= 4 && !card.classList.contains('selected')) {
+                alert("You can select up to 4 cards only!");
+                return;
+            }
+            card.classList.toggle('selected');
+            const cardText = card.textContent;
+            if (card.classList.contains('selected')) {
+                selectedCards.push(cardText);
+            } else {
+                const index = selectedCards.indexOf(cardText);
+                if (index > -1) selectedCards.splice(index, 1);
+            }
+        }
+
+        // Copy selected cards to clipboard
+        document.getElementById('copyButton').addEventListener('click', () => {
+            if (selectedCards.length === 0) {
+                alert("No cards selected!");
+                return;
+            }
+            navigator.clipboard.writeText(selectedCards.join(', '))
+                .then(() => alert("Copied to clipboard: " + selectedCards.join(', ')))
+                .catch(err => alert("Failed to copy!"));
+        });
+
+        // Clear selection
+        document.getElementById('clearButton').addEventListener('click', () => {
+            selectedCards.length = 0;
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => card.classList.remove('selected'));
+        });
+
+        // Initialize card buttons
+        createCardButtons();
+    </script>
+
+</body>
+</html>
